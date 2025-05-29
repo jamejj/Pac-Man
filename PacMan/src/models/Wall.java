@@ -1,9 +1,9 @@
 package models;
 
 public class Wall extends GameObject {
-    private static final String IMAGE_PATH = "./images/pacman.jpg";
+    private static final String IMAGE_PATH = "./images/wall.jpg";
 
-    public Wall(int row, int col) {
-        super(row, col, 0, IMAGE_PATH);
+    public Wall(int row, int col, GameState gameState) {
+        super(row, col, gameState, 0, IMAGE_PATH);
     }
 }

@@ -1,26 +1,34 @@
 package views;
 
 import models.GameState;
-import models.GameTableModel;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.Map;
 
-public class GameView extends JFrame{
+public class GameView extends JFrame implements Runnable, KeyEventDispatcher {
     private int boardSize;
     private GameState gameState;
     private JTable gameTable;
+    private boolean running;
 
-    public GameView(){
+    public GameView() {
+        running = false;
         initFrame();
         boolean isCreated = selectBoardSize();
-        if(isCreated) {
+        if (isCreated) {
+            initGame();
+            KeyboardFocusManager.getCurrentKeyboardFocusManager()
+                    .addKeyEventDispatcher(this);
             pack();
-            initGameBoard();
+            initRefreshThread(); //TODO potrzebna metoda przy zakonczeniu gry na zatrzymanei
             setVisible(true);
         }
     }
 
-    public void initFrame(){
+    public void initFrame() {
         setTitle("Pacman-Gameplay");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
@@ -41,7 +49,7 @@ public class GameView extends JFrame{
                     JOptionPane.QUESTION_MESSAGE
             );
 
-            if (input==null) {
+            if (input == null) {
                 this.dispose();
                 new MainMenuView().setVisible(true);
                 return false;
@@ -73,8 +81,8 @@ public class GameView extends JFrame{
         return true;
     }
 
-    private void initGameBoard() {
-        if(boardSize <= 0) {
+    private void initGame() {
+        if (boardSize <= 0) {
             System.out.println("Board size must be greater than 0");
             return;
         }
@@ -83,6 +91,43 @@ public class GameView extends JFrame{
         gameState.init(boardSize);
         gameTable = new JTable(gameState.getModel());
         add(gameTable);
+
+        gameState.startGame();
     }
 
+    private void initRefreshThread() {
+        running = true;
+        new Thread(this).start();
+    }
+
+    @Override
+    public void run() {
+        while (running) {
+            gameTable.revalidate();
+            gameTable.repaint();
+
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent keyEvent) {
+        Map<Integer, Runnable> actions = Map.of(
+                KeyEvent.VK_UP, gameState.getPlayer()::up,
+                KeyEvent.VK_DOWN, gameState.getPlayer()::down,
+                KeyEvent.VK_LEFT, gameState.getPlayer()::left,
+                KeyEvent.VK_RIGHT, gameState.getPlayer()::right
+        );
+
+        if(actions.containsKey(keyEvent.getKeyCode())) {
+            actions.get(keyEvent.getKeyCode()).run();
+            return true;
+        }
+
+        return false;
+    }
 }

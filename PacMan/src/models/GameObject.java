@@ -4,15 +4,17 @@ import javax.swing.*;
 import java.awt.*;
 
 public abstract class GameObject {
-    private int row;
-    private int col;
-    private int speed;
+    protected int row;
+    protected int col;
+    protected int speed;
+    protected GameState gameState;
     private ImageIcon image;
 
 
-    public GameObject(int row, int col, int speed, String imagePath) {
+    public GameObject(int row, int col, GameState gameState, int speed, String imagePath) {
         this.row = row;
         this.col = col;
+        this.gameState = gameState;
         this.speed = speed;
 
         ImageIcon icon = new ImageIcon(imagePath);
@@ -35,8 +37,15 @@ public abstract class GameObject {
         this.col = col;
     }
 
-
     public ImageIcon getImage() {
         return image;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
     }
 }

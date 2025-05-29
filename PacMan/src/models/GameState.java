@@ -1,12 +1,17 @@
 package models;
 
+import models.powerups.PowerUp;
+import models.powerups.PowerUpEnum;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class GameState {
     private static final int ENEMIES_COUNT = 3;
 
     private List<Enemy> enemies;
+    private List<PowerUp> powerUps;
     private List<Wall> walls;
     private Player player;
     private int boardSize;
@@ -15,23 +20,24 @@ public class GameState {
     public void init(int boardSize) {
         this.boardSize = boardSize;
 
-        int middlePos = boardSize / 2;
         enemies = new ArrayList<>();
+        powerUps = new ArrayList<>();
+        walls = new ArrayList<>();
 
+        int middlePos = boardSize / 2;
         String[] enemiesImages = {
                 "./images/PacmanImg1.png",
                 "./images/PacmanImg2.png",
                 "./images/PacmanImg3.png",
         };
         for(int i = 0; i < ENEMIES_COUNT; i++) {
-            enemies.add(new Enemy(middlePos, middlePos, 1, enemiesImages[i]));
+            enemies.add(new Enemy(middlePos, middlePos, this, 2, enemiesImages[i]));
         }
 
-        player = new Player(0, 0, 1);
+        player = new Player(0, 0, this, 1);
         model = new GameTableModel(this);
 
-        walls = new ArrayList<>();
-        walls.add(new Wall(2, 2));
+        walls.add(new Wall(2, 2, this));
     }
 
     public List<Enemy> getEnemies() {
@@ -51,19 +57,52 @@ public class GameState {
     }
 
     public GameObject findByPosition(int row, int col) {
-        if(player.getRow() == row && player.getCol() == col) {
-            return player;
+        List<GameObject> allObjects = new ArrayList<>();
+        allObjects.add(player);
+        allObjects.addAll(enemies);
+        allObjects.addAll(walls);
+        allObjects.addAll(powerUps);
+
+        return allObjects
+                .stream()
+                .filter(obj -> obj.getCol() == col && obj.getRow() == row)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public boolean canRunIntoPosition(int row, int col) {
+        if(row < 0 || row >= boardSize || col < 0 || col >= boardSize) {
+            return false;
         }
-        for(Enemy enemy : enemies) {
-            if(enemy.getRow() == row && enemy.getCol() == col) {
-                return enemy;
+        return walls
+                .stream()
+                .noneMatch(w -> w.getRow() == row && w.getCol() == col);
+    }
+
+    public void startGame() {
+        enemies.forEach(Enemy::runThread);
+    }
+
+    public void stopGame() {
+        enemies.forEach(Enemy::stopThread);
+    }
+
+    public void addPowerUp(PowerUp powerUp) {
+        synchronized (powerUps) {
+            powerUps.add(powerUp);
+        }
+    }
+
+    public PowerUpEnum popPowerUp(int row, int col) {
+        synchronized (powerUps) {
+            Optional<PowerUp> powerUp = powerUps.stream().filter(p -> p.getRow() == row && p.getCol() == col).findFirst();
+            if(powerUp.isPresent()) {
+                PowerUpEnum powerUpEnum = powerUp.get().getPowerUpEnum();
+                powerUps.remove(powerUp.get());
+                return powerUpEnum;
             }
         }
-        for(Wall wall : walls) {
-            if(wall.getRow() == row && wall.getCol() == col) {
-                return wall;
-            }
-        }
+
         return null;
     }
 }
