@@ -1,5 +1,7 @@
 package views;
 
+import contollers.GameController;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -70,7 +72,7 @@ public class MainMenuView extends JFrame {
         buttonsLook(newGame, buttonDimension);
 
         newGame.addActionListener(e ->  {
-            new GameView();
+            new GameController().start();
             dispose();
         });
 

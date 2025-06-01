@@ -1,4 +1,4 @@
-package models.powerups;
+package models.powerups.methods;
 
 import models.GameState;
 
@@ -15,6 +15,10 @@ public abstract class PowerUpMethod {
 
     public void addTime(long time) {
         this.timeEnd += time;
+    }
+
+    public boolean isExpired() {
+        return System.currentTimeMillis() >= timeEnd;
     }
 
     public abstract void apply(GameState gameState);

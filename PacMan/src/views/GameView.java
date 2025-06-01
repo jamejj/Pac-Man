@@ -1,6 +1,8 @@
 package views;
 
+import contollers.GameController;
 import models.GameState;
+import models.powerups.PowerUpManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,11 +12,12 @@ import java.util.Map;
 
 public class GameView extends JFrame implements Runnable, KeyEventDispatcher {
     private int boardSize;
-    private GameState gameState;
     private JTable gameTable;
     private boolean running;
+    private final GameController gameController;
 
-    public GameView() {
+    public GameView(GameController gameController) {
+        this.gameController = gameController;
         running = false;
         initFrame();
         boolean isCreated = selectBoardSize();
@@ -23,7 +26,7 @@ public class GameView extends JFrame implements Runnable, KeyEventDispatcher {
             KeyboardFocusManager.getCurrentKeyboardFocusManager()
                     .addKeyEventDispatcher(this);
             pack();
-            initRefreshThread(); //TODO potrzebna metoda przy zakonczeniu gry na zatrzymanei
+            initRefreshThread();
             setVisible(true);
         }
     }
@@ -33,8 +36,6 @@ public class GameView extends JFrame implements Runnable, KeyEventDispatcher {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
         setLocationRelativeTo(null);
-
-
     }
 
     public boolean selectBoardSize() {
@@ -87,12 +88,9 @@ public class GameView extends JFrame implements Runnable, KeyEventDispatcher {
             return;
         }
 
-        gameState = new GameState();
-        gameState.init(boardSize);
-        gameTable = new JTable(gameState.getModel());
+        gameController.startGame(boardSize);
+        gameTable = new JTable(gameController.getGameState().getModel());
         add(gameTable);
-
-        gameState.startGame();
     }
 
     private void initRefreshThread() {
@@ -116,6 +114,8 @@ public class GameView extends JFrame implements Runnable, KeyEventDispatcher {
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent keyEvent) {
+        GameState gameState = gameController.getGameState();
+
         Map<Integer, Runnable> actions = Map.of(
                 KeyEvent.VK_UP, gameState.getPlayer()::up,
                 KeyEvent.VK_DOWN, gameState.getPlayer()::down,
@@ -129,5 +129,19 @@ public class GameView extends JFrame implements Runnable, KeyEventDispatcher {
         }
 
         return false;
+    }
+
+    public void stopKeyListener() {
+        KeyboardFocusManager.getCurrentKeyboardFocusManager()
+                .removeKeyEventDispatcher(this);
+    }
+
+    public String getUsername() {
+        return JOptionPane.showInputDialog(
+                this,
+                "Enter your name:",
+                "Game over",
+                JOptionPane.QUESTION_MESSAGE
+        );
     }
 }

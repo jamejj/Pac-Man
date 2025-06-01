@@ -12,6 +12,7 @@ public class Enemy extends GameObject implements Runnable, Movable {
     private long lastTimeCreate;
     private long lastTimeMove;
     private boolean running;
+    private Thread thread;
 
     public Enemy(int row, int col, GameState gameState, int speed, String imagePath) {
         super(row, col, gameState, speed, imagePath);
@@ -40,11 +41,19 @@ public class Enemy extends GameObject implements Runnable, Movable {
             return;
         }
         running = true;
-        new Thread(this).start();
+
+        thread = new Thread(this);
+        thread.start();
     }
 
     public void stopThread() {
         running = false;
+        try {
+            thread.join();
+            thread = null;
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -102,7 +111,7 @@ public class Enemy extends GameObject implements Runnable, Movable {
     }
 
     public void randomMove() {
-        if(System.currentTimeMillis() - lastTimeMove < MOVE_INTERVAL_MS * (long)speed) {
+        if(System.currentTimeMillis() - lastTimeMove < MOVE_INTERVAL_MS * (long)getSpeed()) {
             return;
         }
         lastTimeMove = System.currentTimeMillis();

@@ -1,4 +1,4 @@
-package models.powerups;
+package models.powerups.methods;
 
 import models.GameState;
 import models.Player;

@@ -1,15 +1,15 @@
-package models.powerups;
+package models.powerups.methods;
 
 import models.GameState;
 
-public class SlowEnemyPowerUpMethod extends PowerUpMethod {
-    public SlowEnemyPowerUpMethod(long timeEnd) {
+public class StopEnemyPowerUpMethod extends PowerUpMethod {
+    public StopEnemyPowerUpMethod(long timeEnd) {
         super(timeEnd);
     }
 
     @Override
     public void apply(GameState gameState) {
-        gameState.getEnemies().forEach(e -> e.setSpeed(2));
+        gameState.getEnemies().forEach(e -> e.setSpeed(100000000));
     }
 
     @Override

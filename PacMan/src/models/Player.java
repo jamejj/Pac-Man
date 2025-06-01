@@ -2,20 +2,15 @@ package models;
 
 import models.powerups.PowerUpEnum;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Player extends GameObject implements Movable {
     private static final String IMAGE_PATH = "./images/pacman.jpg";
     private static final int DEFAULT_SPEED_DELAY_MS = 250;
 
-    private List<PowerUpEnum> powerUpEnums;
     private long lastTimeMove;
     private boolean invisible;
 
     public Player(int row, int col, GameState gameState, int speed) {
         super(row, col, gameState, speed, IMAGE_PATH);
-        powerUpEnums = new ArrayList<>();
         lastTimeMove = System.currentTimeMillis();
         invisible = false;
     }
@@ -49,7 +44,7 @@ public class Player extends GameObject implements Movable {
     }
 
     private boolean move(int newRow, int newCol) {
-        if(System.currentTimeMillis() - lastTimeMove < DEFAULT_SPEED_DELAY_MS * (long)speed) {
+        if(System.currentTimeMillis() - lastTimeMove < DEFAULT_SPEED_DELAY_MS * (long)getSpeed()) {
             return false;
         }
 
@@ -67,7 +62,7 @@ public class Player extends GameObject implements Movable {
     private void collectPowerUp() {
         PowerUpEnum powerUpEnum = gameState.popPowerUp(row, col);
         if(powerUpEnum != null) {
-            powerUpEnums.add(powerUpEnum);
+            gameState.getPowerUpManager().addPowerUp(powerUpEnum);
         }
     }
 }

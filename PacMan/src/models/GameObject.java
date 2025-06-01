@@ -6,7 +6,8 @@ import java.awt.*;
 public abstract class GameObject {
     protected int row;
     protected int col;
-    protected int speed;
+    private int speed;
+    private final Object speedLock;
     protected GameState gameState;
     private ImageIcon image;
 
@@ -16,6 +17,7 @@ public abstract class GameObject {
         this.col = col;
         this.gameState = gameState;
         this.speed = speed;
+        speedLock = new Object();
 
         ImageIcon icon = new ImageIcon(imagePath);
         image = new ImageIcon(icon.getImage().getScaledInstance(10, 10, Image.SCALE_SMOOTH));
@@ -25,16 +27,13 @@ public abstract class GameObject {
         return row;
     }
 
-    public void setRow(int row) {
+    public void setPosition(int row, int col) {
         this.row = row;
+        this.col = col;
     }
 
     public int getCol() {
         return col;
-    }
-
-    public void setCol(int col) {
-        this.col = col;
     }
 
     public ImageIcon getImage() {
@@ -42,10 +41,15 @@ public abstract class GameObject {
     }
 
     public int getSpeed() {
-        return speed;
+        synchronized (speedLock) {
+            return speed;
+        }
     }
 
     public void setSpeed(int speed) {
-        this.speed = speed;
+        synchronized (speedLock) {
+            System.out.println("Set speed to " + speed);
+            this.speed = speed;
+        }
     }
 }

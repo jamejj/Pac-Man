@@ -1,7 +1,9 @@
 package models;
 
+import models.collisions.CollisionManager;
 import models.powerups.PowerUp;
 import models.powerups.PowerUpEnum;
+import models.powerups.PowerUpManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,19 +12,29 @@ import java.util.Optional;
 public class GameState {
     private static final int ENEMIES_COUNT = 3;
 
-    private List<Enemy> enemies;
-    private List<PowerUp> powerUps;
-    private List<Wall> walls;
-    private Player player;
+    private final List<Enemy> enemies;
+    private final List<PowerUp> powerUps;
+    private final List<Wall> walls;
+    private final Player player;
     private int boardSize;
-    private GameTableModel model;
+    private final GameTableModel model;
+    private final PowerUpManager powerUpManager;
+    private final CollisionManager collisionManager;
+    private boolean gameOver;
 
-    public void init(int boardSize) {
-        this.boardSize = boardSize;
-
+    public GameState() {
+        powerUpManager = new PowerUpManager(this);
+        collisionManager = new CollisionManager(this);
         enemies = new ArrayList<>();
         powerUps = new ArrayList<>();
         walls = new ArrayList<>();
+        gameOver = false;
+        player = new Player(0, 0, this, 1);
+        model = new GameTableModel(this);
+    }
+
+    public void init(int boardSize) {
+        this.boardSize = boardSize;
 
         int middlePos = boardSize / 2;
         String[] enemiesImages = {
@@ -33,9 +45,6 @@ public class GameState {
         for(int i = 0; i < ENEMIES_COUNT; i++) {
             enemies.add(new Enemy(middlePos, middlePos, this, 2, enemiesImages[i]));
         }
-
-        player = new Player(0, 0, this, 1);
-        model = new GameTableModel(this);
 
         walls.add(new Wall(2, 2, this));
     }
@@ -56,6 +65,10 @@ public class GameState {
         return model;
     }
 
+    public PowerUpManager getPowerUpManager() {
+        return powerUpManager;
+    }
+
     public GameObject findByPosition(int row, int col) {
         List<GameObject> allObjects = new ArrayList<>();
         allObjects.add(player);
@@ -70,6 +83,19 @@ public class GameState {
                 .orElse(null);
     }
 
+    public List<GameObject> findAllByPosition(int row, int col) {
+        List<GameObject> allObjects = new ArrayList<>();
+        allObjects.add(player);
+        allObjects.addAll(enemies);
+        allObjects.addAll(walls);
+        allObjects.addAll(powerUps);
+
+        return allObjects
+                .stream()
+                .filter(obj -> obj.getCol() == col && obj.getRow() == row)
+                .toList();
+    }
+
     public boolean canRunIntoPosition(int row, int col) {
         if(row < 0 || row >= boardSize || col < 0 || col >= boardSize) {
             return false;
@@ -81,10 +107,14 @@ public class GameState {
 
     public void startGame() {
         enemies.forEach(Enemy::runThread);
+        powerUpManager.runThread();
+        collisionManager.runThread();
     }
 
     public void stopGame() {
         enemies.forEach(Enemy::stopThread);
+        powerUpManager.stopThread();
+        collisionManager.stopThread();
     }
 
     public void addPowerUp(PowerUp powerUp) {
@@ -104,5 +134,18 @@ public class GameState {
         }
 
         return null;
+    }
+
+    public void gameOver() {
+        System.out.println("Game Over");
+        gameOver = true;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public CollisionManager getCollisionManager() {
+        return collisionManager;
     }
 }
