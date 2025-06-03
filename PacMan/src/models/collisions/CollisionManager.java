@@ -48,6 +48,10 @@ public class CollisionManager implements Runnable {
         }
 
         Player player = gameState.getPlayer();
+        if(player.isInvisible()) {
+            return;
+        }
+
         for(GameObject object : gameState.findAllByPosition(player.getRow(), player.getCol())) {
             if(object instanceof Enemy) {
                 gameState.gameOver();

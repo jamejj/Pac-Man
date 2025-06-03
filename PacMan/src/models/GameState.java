@@ -8,6 +8,7 @@ import models.powerups.PowerUpManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 public class GameState {
     private static final int ENEMIES_COUNT = 3;
@@ -46,7 +47,21 @@ public class GameState {
             enemies.add(new Enemy(middlePos, middlePos, this, 2, enemiesImages[i]));
         }
 
-        walls.add(new Wall(2, 2, this));
+        createWalls();
+    }
+
+    private void createWalls() {
+        int maxDepth = boardSize / 3;
+        for(int depth = 1; depth <= maxDepth; depth += 2) {
+            for(int i = depth; i < boardSize - depth; i++) {
+                if(i != boardSize / 2) {
+                    walls.add(new Wall(depth, i, this));
+                    walls.add(new Wall(i, depth, this));
+                    walls.add(new Wall(i, boardSize - depth - 1, this));
+                    walls.add(new Wall(boardSize - depth - 1, i, this));
+                }
+            }
+        }
     }
 
     public List<Enemy> getEnemies() {

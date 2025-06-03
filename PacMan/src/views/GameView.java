@@ -90,6 +90,12 @@ public class GameView extends JFrame implements Runnable, KeyEventDispatcher {
 
         gameController.startGame(boardSize);
         gameTable = new JTable(gameController.getGameState().getModel());
+        gameTable.setRowHeight(30);
+        gameTable.setBackground(Color.BLACK);
+        for(int i = 0; i < gameController.getGameState().getModel().getRowCount(); i++) {
+            gameTable.getColumnModel().getColumn(i).setCellRenderer(new GameObjectRenderer());
+        }
+
         add(gameTable);
     }
 
@@ -143,5 +149,9 @@ public class GameView extends JFrame implements Runnable, KeyEventDispatcher {
                 "Game over",
                 JOptionPane.QUESTION_MESSAGE
         );
+    }
+
+    public void setScoreOnTitle(int score) {
+        setTitle("Pacman-Gameplay - score: " + score + " points");
     }
 }

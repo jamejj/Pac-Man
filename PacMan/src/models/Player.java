@@ -5,14 +5,22 @@ import models.powerups.PowerUpEnum;
 public class Player extends GameObject implements Movable {
     private static final String IMAGE_PATH = "./images/pacman.jpg";
     private static final int DEFAULT_SPEED_DELAY_MS = 250;
+    private NewScoreListener onNewScore;
 
     private long lastTimeMove;
     private boolean invisible;
+    private int score;
 
     public Player(int row, int col, GameState gameState, int speed) {
         super(row, col, gameState, speed, IMAGE_PATH);
         lastTimeMove = System.currentTimeMillis();
         invisible = false;
+        score = 0;
+        onNewScore = null;
+    }
+
+    public void setOnNewScore(NewScoreListener onNewScore) {
+        this.onNewScore = onNewScore;
     }
 
     @Override
@@ -33,6 +41,19 @@ public class Player extends GameObject implements Movable {
     @Override
     public boolean right() {
         return move(row, col + 1);
+    }
+
+    public void addScore(int score) {
+        if(score > 0) {
+            this.score += score;
+            if(onNewScore != null) {
+                onNewScore.newScore(this.score);
+            }
+        }
+    }
+
+    public int getScore() {
+        return score;
     }
 
     public boolean isInvisible() {
@@ -63,6 +84,7 @@ public class Player extends GameObject implements Movable {
         PowerUpEnum powerUpEnum = gameState.popPowerUp(row, col);
         if(powerUpEnum != null) {
             gameState.getPowerUpManager().addPowerUp(powerUpEnum);
+            addScore(100);
         }
     }
 }
