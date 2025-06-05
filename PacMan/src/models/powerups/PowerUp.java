@@ -7,7 +7,7 @@ public class PowerUp extends GameObject {
     private PowerUpEnum powerUpEnum;
 
     public PowerUp(int row, int col, GameState gameState, PowerUpEnum powerUpEnum) {
-        super(row, col, gameState, 0, "./images/powerup.jpg");
+        super(row, col, gameState, 0, "./images/powerup.png");
         this.powerUpEnum = powerUpEnum;
     }
 

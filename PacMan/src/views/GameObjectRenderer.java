@@ -7,7 +7,8 @@ import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 
-public class GameObjectRenderer extends JPanel implements TableCellRenderer {
+
+public class GameObjectRenderer extends JLabel implements TableCellRenderer {
     private ImageIcon image;
 
     public GameObjectRenderer() {

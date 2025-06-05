@@ -2,12 +2,11 @@ package views;
 
 import contollers.GameController;
 import models.GameState;
-import models.powerups.PowerUpManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.Map;
 
 public class GameView extends JFrame implements Runnable, KeyEventDispatcher {
@@ -27,6 +26,7 @@ public class GameView extends JFrame implements Runnable, KeyEventDispatcher {
                     .addKeyEventDispatcher(this);
             pack();
             initRefreshThread();
+            keyShortCut();
             setVisible(true);
         }
     }
@@ -88,13 +88,18 @@ public class GameView extends JFrame implements Runnable, KeyEventDispatcher {
             return;
         }
 
+        int cellSize = 30;
         gameController.startGame(boardSize);
         gameTable = new JTable(gameController.getGameState().getModel());
         gameTable.setRowHeight(30);
         gameTable.setBackground(Color.BLACK);
         for(int i = 0; i < gameController.getGameState().getModel().getRowCount(); i++) {
             gameTable.getColumnModel().getColumn(i).setCellRenderer(new GameObjectRenderer());
+            gameTable.getColumnModel().getColumn(i).setPreferredWidth(cellSize);
+
         }
+        gameTable.setRowHeight(cellSize);
+
 
         add(gameTable);
     }
@@ -154,4 +159,27 @@ public class GameView extends JFrame implements Runnable, KeyEventDispatcher {
     public void setScoreOnTitle(int score) {
         setTitle("Pacman-Gameplay - score: " + score + " points");
     }
+
+
+    private void keyShortCut() {
+        InputMap inputMap = gameTable.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap actionMap = gameTable.getActionMap();
+
+        KeyStroke keyStroke = KeyStroke.getKeyStroke("ctrl shift Q");
+        inputMap.put(keyStroke, "exitToMenu");
+
+        actionMap.put("exitToMenu", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                stopKeyListener();
+                running = false;
+                dispose();
+                new MainMenuView().setVisible(true);
+            }
+        });
+    }
+
+
 }
+
+

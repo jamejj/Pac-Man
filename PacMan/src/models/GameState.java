@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.Random;
 
 public class GameState {
-    private static final int ENEMIES_COUNT = 3;
+    private static final int ENEMIES_COUNT = 4;
 
     private final List<Enemy> enemies;
     private final List<PowerUp> powerUps;
@@ -42,6 +42,7 @@ public class GameState {
                 "./images/PacmanImg1.png",
                 "./images/PacmanImg2.png",
                 "./images/PacmanImg3.png",
+                "./images/PacmanImg1.png"
         };
         for(int i = 0; i < ENEMIES_COUNT; i++) {
             enemies.add(new Enemy(middlePos, middlePos, this, 2, enemiesImages[i]));

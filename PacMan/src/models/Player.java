@@ -3,7 +3,7 @@ package models;
 import models.powerups.PowerUpEnum;
 
 public class Player extends GameObject implements Movable {
-    private static final String IMAGE_PATH = "./images/pacman.jpg";
+    private static final String IMAGE_PATH = "./images/pacman.png";
     private static final int DEFAULT_SPEED_DELAY_MS = 250;
     private NewScoreListener onNewScore;
 
